@@ -7,6 +7,17 @@ import numpy as np
 def euclidean_d (point, points):
     return np.sqrt(np.sum((point-points)**2,axis=1))
 
+def knn_y (train_data, test_data,k):
+    y_pred = []
+    for j in range(len(test_data)):
+        distance = euclidean_d(np.array(test_data.iloc[j,:-1]),np.array(train_data.iloc[:,:-1]))
+        neighbour = {"y_value": train_data.y,"distance":distance}
+        neighbour = pd.DataFrame(neighbour, columns = ['y_value','distance'])
+        neighbour = neighbour.sort_values(by = 'distance', kind='mergesort').iloc[:k,] 
+        values, counts = np.unique(neighbour.y_value, return_counts=True)
+        y_pred.append(int(values[counts == counts.max()][0]))
+    return y_pred
+
 def knn (train_data, test_data,k):
     y_pred = []
     for j in range(len(test_data)):
@@ -139,7 +150,7 @@ test_data['x1']=x1
 test_data['x2']=x2
 plt.scatter(train_data.loc[train_data.y==0,'x1'], train_data.loc[train_data.y==0,'x2'],edgecolors= "black",color = 'white',label="class 0")
 plt.scatter(train_data.loc[train_data.y==1,'x1'], train_data.loc[train_data.y==1,'x2'],color= "black",marker="+",label="class 1")
-test_data['y'] = knn(train_data,test_data,1)
+test_data['y'] = knn_y(train_data,test_data,1)
 plt.scatter(test_data.loc[test_data.y==0,'x1'], test_data.loc[test_data.y==0,'x2'],color = 'blue',label="class 0",alpha = 0.5,s=10)
 plt.scatter(test_data.loc[test_data.y==1,'x1'], test_data.loc[test_data.y==1,'x2'],color= "red",label="class 1", alpha = 0.5, s=10)
 plt.xlabel("Feature 1")
